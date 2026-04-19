@@ -1,44 +1,31 @@
 require("dotenv").config();
 const mysql = require("mysql2");
-const fs = require("fs");
-const path = require("path");
+const fs    = require("fs");
+const path  = require("path");
 
 const password = (process.env.DB_PASSWORD || "").replace(/^"|"$/g, "");
 
-// Step 1: connect WITHOUT database to create it if missing
-const setup = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
+const db = mysql.createConnection({
+  host:     process.env.DB_HOST,
+  user:     process.env.DB_USER,
   password: password,
+  multipleStatements: true,
 });
 
-setup.connect((err) => {
+db.connect((err) => {
   if (err) {
-    console.error("❌ Cannot connect to MySQL at all:");
-    console.error("   Code:", err.code);
-    console.error("   Message:", err.message);
-    console.error("\n👉 Make sure MySQL service is running and credentials are correct.");
+    console.error("❌ Cannot connect to MySQL:", err.code, err.message);
     process.exit(1);
   }
+  console.log("✅ MySQL connected");
 
-  console.log("✅ MySQL server reachable");
-
-  // Step 2: run schema.sql to create DB + tables
   const schema = fs.readFileSync(path.join(__dirname, "schema.sql"), "utf8");
-  const statements = schema.split(";").map(s => s.trim()).filter(Boolean);
-
-  let i = 0;
-  const runNext = () => {
-    if (i >= statements.length) {
-      console.log("✅ Schema applied — database and tables are ready!");
-      setup.end();
-      return;
+  db.query(schema, (err) => {
+    if (err) {
+      console.error("❌ Schema error:", err.message);
+    } else {
+      console.log("✅ Schema applied — all tables ready!");
     }
-    setup.query(statements[i++], (err) => {
-      if (err) console.warn("⚠️  Warning:", err.message);
-      runNext();
-    });
-  };
-
-  runNext();
+    db.end();
+  });
 });

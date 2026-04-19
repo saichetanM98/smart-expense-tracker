@@ -12,7 +12,7 @@ const app        = express();
 const PORT       = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || "spendsmart_secret_2025";
 
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173", credentials: true }));
 app.use(express.json());
 
 // ── MongoDB log helper ────────────────────────────────────────
@@ -97,8 +97,8 @@ app.post("/login", (req, res) => {
 app.get("/transactions", auth, (req, res) => {
   db.query(
     `SELECT t.transaction_id as id,
-            c.category_name  as title,
-            c.category_name  as category,
+            COALESCE(c.category_name, 'Other') as title,
+            COALESCE(c.category_name, 'Other') as category,
             t.amount,
             t.transaction_type as type,
             DATE_FORMAT(t.date, '%Y-%m-%d') as date
@@ -181,4 +181,4 @@ app.get("/logs", auth, async (req, res) => {
 });
 
 // ── Start ─────────────────────────────────────────────────────
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+app.listen(PORT, "127.0.0.1", () => console.log(`🚀 Server running on http://127.0.0.1:${PORT}`));

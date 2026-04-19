@@ -1,56 +1,42 @@
 CREATE DATABASE IF NOT EXISTS expense_tracker;
 USE expense_tracker;
 
-CREATE TABLE IF NOT EXISTS Users (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
-  email VARCHAR(100) NOT NULL UNIQUE,
-  password VARCHAR(255) NOT NULL,
+CREATE TABLE IF NOT EXISTS users (
+  user_id   INT AUTO_INCREMENT PRIMARY KEY,
+  name      VARCHAR(100)  NOT NULL,
+  email     VARCHAR(100)  NOT NULL UNIQUE,
+  password  VARCHAR(255)  NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS Transactions (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
-  title VARCHAR(255) NOT NULL,
-  amount DECIMAL(10,2) NOT NULL,
-  category VARCHAR(100) NOT NULL,
-  type ENUM('income','expense') NOT NULL,
-  date DATE NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
+CREATE TABLE IF NOT EXISTS accounts (
+  account_id   INT AUTO_INCREMENT PRIMARY KEY,
+  user_id      INT NOT NULL,
+  account_type VARCHAR(50) DEFAULT 'general',
+  balance      DECIMAL(10,2) DEFAULT 0.00,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
--- Trigger: log summary after INSERT into Transactions
-DELIMITER $$
+CREATE TABLE IF NOT EXISTS categories (
+  category_id   INT AUTO_INCREMENT PRIMARY KEY,
+  category_name VARCHAR(100) NOT NULL UNIQUE
+);
 
-CREATE TRIGGER IF NOT EXISTS after_transaction_insert
-AFTER INSERT ON Transactions
-FOR EACH ROW
-BEGIN
-  INSERT INTO TransactionLogs (user_id, transaction_id, action, amount, category, type, logged_at)
-  VALUES (NEW.user_id, NEW.id, 'INSERT', NEW.amount, NEW.category, NEW.type, NOW());
-END$$
+INSERT IGNORE INTO categories (category_name) VALUES
+  ('Food'),('Transport'),('Shopping'),('Health'),
+  ('Entertainment'),('Other'),('Salary'),('Freelance'),
+  ('Investment'),('Gift');
 
--- Trigger: log summary after DELETE from Transactions
-CREATE TRIGGER IF NOT EXISTS after_transaction_delete
-AFTER DELETE ON Transactions
-FOR EACH ROW
-BEGIN
-  INSERT INTO TransactionLogs (user_id, transaction_id, action, amount, category, type, logged_at)
-  VALUES (OLD.user_id, OLD.id, 'DELETE', OLD.amount, OLD.category, OLD.type, NOW());
-END$$
-
-DELIMITER ;
-
--- Table used by MySQL triggers
-CREATE TABLE IF NOT EXISTS TransactionLogs (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
-  transaction_id INT NOT NULL,
-  action VARCHAR(20) NOT NULL,
-  amount DECIMAL(10,2),
-  category VARCHAR(100),
-  type VARCHAR(20),
-  logged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE IF NOT EXISTS transactions (
+  transaction_id   INT AUTO_INCREMENT PRIMARY KEY,
+  user_id          INT NOT NULL,
+  account_id       INT,
+  category_id      INT,
+  amount           DECIMAL(10,2) NOT NULL,
+  transaction_type ENUM('income','expense') NOT NULL,
+  date             DATE NOT NULL,
+  created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id)    REFERENCES users(user_id)       ON DELETE CASCADE,
+  FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE SET NULL,
+  FOREIGN KEY (category_id) REFERENCES categories(category_id) ON DELETE SET NULL
 );
