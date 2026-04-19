@@ -177,6 +177,7 @@ http://localhost:5173
 
 * Sai Chetan [1RN24CY040]
 * Vishwanath [1RN24CY053]
+* Amulya I V [1RN24CY005]
 
 
 ---
