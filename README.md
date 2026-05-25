@@ -2,9 +2,9 @@
 
 ## 📌 Project Description
 
-The Smart Expense Tracking System is a full-stack web application that helps users manage their income and expenses efficiently. It provides real-time tracking, analytics, and automated balance updates.
+The Smart Expense Tracking System is a full-stack web application that helps users manage their income and expenses efficiently. It provides real-time tracking, analytics, activity logging, and smart spending suggestions.
 
-This project demonstrates a **hybrid database architecture** using **MySQL (structured data)** and **MongoDB (unstructured logs)**.
+This project uses **MySQL** as the sole database for all structured data including users, transactions, categories, accounts, and activity logs.
 
 ---
 
@@ -14,8 +14,10 @@ This project demonstrates a **hybrid database architecture** using **MySQL (stru
 * ➕ Add Transactions (Income & Expense)
 * ❌ Delete Transactions
 * 📊 Dashboard with Analytics (Charts)
-* 💰 Automatic Balance Update
-* 🧾 Activity Logging using MongoDB
+* 💰 Automatic Balance Calculation
+* 🧾 Activity Logging (MySQL)
+* 📈 Stored Procedure for Monthly Expense
+* 💡 Smart Spending Suggestions & Overspending Alerts
 * 📱 Responsive UI
 
 ---
@@ -23,10 +25,10 @@ This project demonstrates a **hybrid database architecture** using **MySQL (stru
 ## 🧠 Key Concepts Used
 
 * Relational Database (MySQL)
-* NoSQL Database (MongoDB)
+* Stored Procedures
 * REST APIs
 * JWT Authentication
-* Full Stack Development
+* Full Stack Development (React + Node.js)
 
 ---
 
@@ -34,11 +36,15 @@ This project demonstrates a **hybrid database architecture** using **MySQL (stru
 
 ```
 React Frontend (Vite)
-      ↓
+        ↓
 Node.js Backend (Express)
-      ↓
-MySQL (Users, Accounts, Categories, Transactions)
-MongoDB (Activity Logs)
+        ↓
+      MySQL
+        ├── users
+        ├── accounts
+        ├── categories
+        ├── transactions
+        └── logs (activity)
 ```
 
 ---
@@ -54,7 +60,6 @@ MongoDB (Activity Logs)
 ### Backend
 * Node.js + Express.js
 * MySQL2
-* Mongoose
 * jsonwebtoken (JWT)
 * bcryptjs
 * dotenv + cors
@@ -76,11 +81,10 @@ smart-expense-tracker/
 ├── backend/
 │   ├── server.js
 │   ├── db.js
-│   ├── mongodb.js
 │   ├── schema.sql
 │   ├── setup.js
 │   ├── .env.example
-│   └── models/
+│   └── package.json
 │
 └── README.md
 ```
@@ -92,7 +96,6 @@ smart-expense-tracker/
 ### Prerequisites
 * Node.js (v18+)
 * MySQL (running locally)
-* MongoDB (optional — logs disabled if not running)
 
 ---
 
@@ -126,7 +129,6 @@ DB_NAME=expense_tracker
 PORT=5000
 JWT_SECRET=any_random_secret_string
 CLIENT_URL=http://localhost:5173
-MONGO_URI=mongodb://localhost:27017/expense_tracker_logs
 ```
 
 Create database and tables:
@@ -167,20 +169,34 @@ http://localhost:5173
 
 ## 🧪 API Endpoints
 
-| Method | Endpoint          | Description         |
-| ------ | ----------------- | ------------------- |
-| POST   | /register         | User registration   |
-| POST   | /login            | User login          |
-| GET    | /transactions     | Fetch transactions  |
-| POST   | /transactions     | Add transaction     |
-| DELETE | /transactions/:id | Delete transaction  |
-| GET    | /logs             | Fetch activity logs |
+| Method | Endpoint          | Description                        |
+| ------ | ----------------- | ---------------------------------- |
+| POST   | /register         | User registration                  |
+| POST   | /login            | User login                         |
+| GET    | /transactions     | Fetch all transactions             |
+| POST   | /transactions     | Add a transaction                  |
+| DELETE | /transactions/:id | Delete a transaction               |
+| GET    | /monthly-expense  | Get monthly expense (stored proc)  |
+| GET    | /logs             | Fetch activity logs                |
+
+---
+
+## 🗄️ Database Schema
+
+| Table        | Description                          |
+| ------------ | ------------------------------------ |
+| users        | Stores user credentials              |
+| accounts     | User's general account               |
+| categories   | Transaction categories               |
+| transactions | All income & expense records         |
+| logs         | Activity logs (login, add, delete)   |
 
 ---
 
 ## 🔥 Innovative Features
 
-* Hybrid Database (MySQL + MongoDB)
+* Stored Procedure — `GetMonthlyExpense` for monthly totals
+* Activity logging for every user action
 * Real-time analytics dashboard
 * JWT-based secure authentication
 * Smart spending suggestions & overspending alerts
