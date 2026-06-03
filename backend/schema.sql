@@ -40,6 +40,18 @@ CREATE TABLE IF NOT EXISTS transactions (
   FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE SET NULL,
   FOREIGN KEY (category_id) REFERENCES categories(category_id) ON DELETE SET NULL
 );
+DROP PROCEDURE IF EXISTS GetMonthlyExpense;
+CREATE PROCEDURE GetMonthlyExpense(IN uid INT)
+BEGIN
+  SELECT
+    DATE_FORMAT(date, '%Y-%m') AS month,
+    SUM(amount) AS total_expense
+  FROM transactions
+  WHERE user_id = uid AND transaction_type = 'expense'
+  GROUP BY DATE_FORMAT(date, '%Y-%m')
+  ORDER BY month DESC;
+END;
+
 CREATE TABLE IF NOT EXISTS logs (
   log_id     INT AUTO_INCREMENT PRIMARY KEY,
   user_id    INT NOT NULL,
