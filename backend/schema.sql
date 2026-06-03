@@ -41,11 +41,12 @@ CREATE TABLE IF NOT EXISTS transactions (
   FOREIGN KEY (category_id) REFERENCES categories(category_id) ON DELETE SET NULL
 );
 CREATE TABLE IF NOT EXISTS logs (
-  log_id INT AUTO_INCREMENT PRIMARY KEY,
-  transaction_id INT,
-  action VARCHAR(100),
-  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (transaction_id)
-    REFERENCES transactions(transaction_id)
-    ON DELETE CASCADE
+  log_id     INT AUTO_INCREMENT PRIMARY KEY,
+  user_id    INT NOT NULL,
+  user_email VARCHAR(100) NOT NULL,
+  action     VARCHAR(100) NOT NULL,
+  details    TEXT,
+  ip         VARCHAR(50),
+  status     ENUM('success','failed') DEFAULT 'success',
+  timestamp  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

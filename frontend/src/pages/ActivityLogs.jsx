@@ -30,7 +30,7 @@ export default function ActivityLogs() {
     <div className="page-content">
       <div className="page-header">
         <h1>Activity Logs</h1>
-        <p>All your account activity stored in MongoDB</p>
+        <p>All your account activity stored in MySQL</p>
       </div>
 
       {/* Stats Row */}
@@ -56,8 +56,8 @@ export default function ActivityLogs() {
         {loading && <div className="no-data">⏳ Loading logs...</div>}
         {error && (
           <div className="log-error">
-            <strong>⚠️ MongoDB not running</strong><br />
-            Install MongoDB Community from <a href="https://www.mongodb.com/try/download/community" target="_blank" rel="noreferrer">mongodb.com</a> and start the service, then refresh.
+            <strong>⚠️ Failed to load logs</strong><br />
+            {error}
           </div>
         )}
 
@@ -68,14 +68,14 @@ export default function ActivityLogs() {
         {!loading && logs.map((log) => {
           const style = ACTION_COLORS[log.action] || { bg: "#f9fafb", color: "#374151", icon: "📋" };
           return (
-            <div className="log-row" key={log._id}>
+            <div className="log-row" key={log.log_id}>
               <div className="log-icon" style={{ background: style.bg, color: style.color }}>
                 {style.icon}
               </div>
               <div className="log-info">
                 <div className="log-action" style={{ color: style.color }}>{log.action.replace(/_/g, " ")}</div>
                 <div className="log-details">
-                  {log.details && Object.entries(log.details).map(([k, v]) => (
+                  {log.details && Object.entries(typeof log.details === "string" ? JSON.parse(log.details) : log.details).map(([k, v]) => (
                     <span key={k} className="log-detail-chip">{k}: <strong>{String(v)}</strong></span>
                   ))}
                 </div>
